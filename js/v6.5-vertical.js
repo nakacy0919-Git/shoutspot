@@ -12,7 +12,7 @@
   }
 
   function setVerticalButton(button, text, side, mark = "") {
-    if (!button) return;
+    if (!button || button.querySelector(".v65-vertical-wrap")) return;
 
     const wrap = document.createElement("span");
     wrap.className = "v65-vertical-wrap";

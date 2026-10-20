@@ -166,3 +166,359 @@
     font-size: 12px;
   }
 }
+
+/* SHOUT SPOT V6.6 TRUE TATEGAKI */
+
+/* 文字全体の回転を完全に解除 */
+.action-bar #first .v65-vertical-wrap,
+.action-bar #second .v65-vertical-wrap,
+.side-one .bonus-rail-button .v65-vertical-wrap,
+.side-two .bonus-rail-button .v65-vertical-wrap {
+    transform: none !important;
+    rotate: none !important;
+}
+
+/* 日本語の縦書き列を右から左へ配置 */
+.v65-vertical-stack {
+    display: flex !important;
+    flex-direction: row-reverse !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 9px !important;
+    white-space: normal !important;
+    transform: none !important;
+}
+
+/* 一文字ずつ正しい向きで配置 */
+.v65-vertical-stack .v65-body {
+    display: grid !important;
+    grid-auto-flow: column !important;
+    direction: rtl;
+    align-items: center;
+    justify-items: center;
+    white-space: normal !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.v65-body > span {
+    display: block !important;
+    writing-mode: vertical-rl !important;
+    text-orientation: upright !important;
+    transform: none !important;
+    rotate: none !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    text-align: center;
+}
+
+/* ① 1枚目を表示 / ② 2枚目を表示 */
+.action-bar #first .v65-body,
+.action-bar #second .v65-body {
+    grid-template-rows: repeat(3, 15px) !important;
+    grid-auto-columns: 17px !important;
+    width: 34px !important;
+    height: 45px !important;
+}
+
+.action-bar .v65-body > span {
+    font-size: 15px !important;
+    font-weight: 900;
+}
+
+.action-bar .v65-mark {
+    font-size: 19px !important;
+    margin: 0 !important;
+}
+
+/* ボタン全体を綺麗に中央配置 */
+.action-bar #first,
+.action-bar #second {
+    display: grid !important;
+    place-items: center !important;
+    padding: 2px 4px !important;
+    overflow: hidden !important;
+}
+
+/* 読む・スキップボタン */
+.bonus-rail-button {
+    display: grid !important;
+    place-items: center !important;
+    padding: 2px 4px !important;
+    overflow: hidden !important;
+}
+
+/* 読む：2文字を縦に */
+.bonus-rail-button .v65-body {
+    grid-template-rows: repeat(2, 21px) !important;
+    grid-auto-columns: 22px !important;
+    width: 22px !important;
+    height: 42px !important;
+}
+
+.bonus-rail-button .v65-body > span {
+    font-size: 20px !important;
+    font-weight: 900;
+}
+
+.bonus-rail-button .v65-mark {
+    font-size: 20px !important;
+    margin: 0 !important;
+}
+
+/* スキップ：4文字を縦に */
+.bonus-rail-button.skip .v65-body {
+    grid-template-rows: repeat(4, 14px) !important;
+    grid-auto-columns: 16px !important;
+    width: 16px !important;
+    height: 56px !important;
+}
+
+.bonus-rail-button.skip .v65-body > span {
+    font-size: 14px !important;
+}
+
+
+/* V6.6.5 PLAYER-FACING TRUE VERTICAL */
+
+/* 1枚目・2枚目ボタンを、各プレイヤー向きの1列縦書きにする */
+.action-bar #first,
+.action-bar #second {
+  display: grid !important;
+  place-items: center !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+/* ラッパー全体をプレイヤー向きに回す */
+.action-bar #first .v65-vertical-wrap,
+.action-bar #second .v65-vertical-wrap {
+  width: 100% !important;
+  height: 100% !important;
+  display: grid !important;
+  place-items: center !important;
+  transform-origin: center center !important;
+}
+
+.action-bar #first .v65-vertical-wrap {
+  transform: rotate(90deg) !important;
+}
+
+.action-bar #second .v65-vertical-wrap {
+  transform: rotate(-90deg) !important;
+}
+
+/* 全体は1列 */
+.action-bar .v65-vertical-stack {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  grid-template-rows: auto auto !important;
+  justify-items: center !important;
+  align-items: center !important;
+  gap: 4px !important;
+  white-space: nowrap !important;
+}
+
+/* 本文を本当の縦書きにする */
+.action-bar .v65-body {
+  display: inline-block !important;
+  writing-mode: vertical-rl !important;
+  text-orientation: upright !important;
+  font-size: 16px !important;
+  font-weight: 1000 !important;
+  line-height: 1.05 !important;
+  letter-spacing: 0.02em !important;
+  color: #fffdf8 !important;
+  text-shadow: 0 1px 2px #00000055 !important;
+  white-space: nowrap !important;
+}
+
+/* JSで1文字ずつ span が入っていても、1本の縦書きに見せる */
+.action-bar .v65-body > span {
+  display: inline !important;
+  writing-mode: inherit !important;
+  text-orientation: inherit !important;
+  transform: none !important;
+  rotate: none !important;
+}
+
+/* ① ② は小さく下に */
+.action-bar .v65-mark {
+  font-size: 18px !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  color: #fffdf8 !important;
+  text-shadow: 0 1px 2px #00000055 !important;
+}
+
+/* 念のため旧回転を無効化 */
+.action-bar #first .v64-face,
+.action-bar #second .v64-face,
+.action-bar #first .v65-body,
+.action-bar #second .v65-body {
+  transform-origin: center center !important;
+}
+
+/* 小さめ画面で少し縮小 */
+@media (orientation: landscape) and (max-height: 760px) {
+  .action-bar .v65-body {
+    font-size: 14px !important;
+  }
+  .action-bar .v65-mark {
+    font-size: 16px !important;
+  }
+}
+
+
+/* V6.6.6 CLEAN SINGLE COLUMN BUTTONS */
+
+/* ①②は消す */
+.action-bar .v65-mark {
+  display: none !important;
+}
+
+/* ボタン本体 */
+.action-bar #first,
+.action-bar #second {
+  display: grid !important;
+  place-items: center !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+/* プレイヤー向きの回転はそのまま維持 */
+.action-bar #first .v65-vertical-wrap,
+.action-bar #second .v65-vertical-wrap {
+  width: 100% !important;
+  height: 100% !important;
+  display: grid !important;
+  place-items: center !important;
+}
+
+/* 全体を完全に中央寄せ */
+.action-bar .v65-vertical-stack {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  grid-template-rows: 1fr !important;
+  place-items: center !important;
+  gap: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* 文字は1列の縦書きで中央に */
+.action-bar .v65-body {
+  display: block !important;
+  writing-mode: vertical-rl !important;
+  text-orientation: upright !important;
+  white-space: nowrap !important;
+  text-align: center !important;
+  font-size: 14px !important;
+  font-weight: 1000 !important;
+  line-height: 0.92 !important;
+  letter-spacing: 0 !important;
+  color: #fffdf8 !important;
+  text-shadow: 0 1px 2px #00000055 !important;
+  max-height: 44px !important;
+}
+
+/* JSで1文字ずつ span が入っていても1本の縦書きに見せる */
+.action-bar .v65-body > span {
+  display: inline !important;
+  writing-mode: inherit !important;
+  text-orientation: inherit !important;
+  transform: none !important;
+  rotate: none !important;
+}
+
+/* 小さめ画面では少し縮小 */
+@media (orientation: landscape) and (max-height: 760px) {
+  .action-bar .v65-body {
+    font-size: 12px !important;
+    max-height: 40px !important;
+  }
+}
+
+
+
+/* V6.7 PERFECT CENTER */
+
+/* ボタン本体は回転させない */
+.action-bar #first,
+.action-bar #second {
+    position: absolute !important;
+    display: block !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+}
+
+/* 回転していた大きな領域を固定 */
+.action-bar #first .v65-vertical-wrap,
+.action-bar #second .v65-vertical-wrap {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
+    transform: none !important;
+    rotate: none !important;
+    pointer-events: none !important;
+}
+
+.action-bar .v65-vertical-stack {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* 丸数字は削除 */
+.action-bar .v65-mark {
+    display: none !important;
+}
+
+/* 文字列の中心をボタンの中心に合わせる */
+.action-bar #first .v65-body,
+.action-bar #second .v65-body {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+
+    display: inline-block !important;
+    width: max-content !important;
+    height: max-content !important;
+    max-width: none !important;
+    max-height: none !important;
+
+    writing-mode: vertical-rl !important;
+    text-orientation: upright !important;
+    direction: ltr !important;
+    white-space: nowrap !important;
+
+    font-size: clamp(15px, 1.25vw, 18px) !important;
+    font-weight: 900 !important;
+    line-height: 1.05 !important;
+    letter-spacing: 0 !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+    transform-origin: center center !important;
+}
+
+/* P1の向きは維持 */
+.action-bar #first .v65-body {
+    transform: translate(-50%, -50%) rotate(90deg) !important;
+}
+
+/* P2の向きは維持 */
+.action-bar #second .v65-body {
+    transform: translate(-50%, -50%) rotate(-90deg) !important;
+}
+
+/* 文字を1列に保つ */
+.action-bar .v65-body > span {
+    display: inline !important;
+    transform: none !important;
+    rotate: none !important;
+}
