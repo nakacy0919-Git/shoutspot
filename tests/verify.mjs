@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
-import {items} from '../js/engine.js';
-import {matchesAnswer,createSpeech} from '../js/speech.js';
+import {items,makeRound} from '../js/engine.js';
+import {matchesAnswer,matchesSpoken,classifySpeech,createSpeech} from '../js/speech.js';
 
 // Word recognition and stale callbacks are the existing engine's contracts.
 for(const a of items){
@@ -11,6 +11,22 @@ assert(matchesAnswer('a bike','bicycle'));
 assert(matchesAnswer('doughnut','donut'));
 assert(!matchesAnswer('not a cat','cat'));
 assert(!matchesAnswer('cat or dog','cat'));
+for(const item of items){assert(matchesSpoken(item.ja,item,'ja'),`${item.ja} match failed`);}
+assert(matchesSpoken('いぬ',items.find(x=>x.en==='dog'),'ja'));
+assert(matchesSpoken('犬です',items.find(x=>x.en==='dog'),'ja'));
+assert(matchesSpoken('答えはリンゴです',items.find(x=>x.en==='apple'),'ja'));
+assert(!matchesSpoken('猫',items.find(x=>x.en==='dog'),'ja'));
+for(let n=3;n<=8;n++){for(const category of ['all','animals','food','things']){for(const mode of ['missing','common']){
+ const r=makeRound(mode,n,category);assert.equal(r.left.length,n);assert.equal(r.right.length,mode==='missing'?n-1:n);
+ const overlap=r.left.filter(x=>r.right.includes(x));assert.equal(overlap.length,mode==='missing'?n-1:1);
+ assert(r.left.includes(r.answer));
+}}}
+const sample={left:[items[0],items[1]],right:[items[1]],answer:items[0]};
+assert.equal(classifySpeech('犬',sample,'ja','cards').type,'correct');
+assert.equal(classifySpeech('猫',sample,'ja','cards').type,'wrong');
+assert.equal(classifySpeech('こんにちは',sample,'ja','cards').type,'ignored');
+assert.equal(classifySpeech('こんにちは',sample,'ja','all').type,'wrong');
+assert.equal(classifySpeech(['こんにちは','犬'],sample,'ja','cards').type,'correct');
 
 let current;
 class FakeSpeech{
@@ -21,7 +37,7 @@ class FakeSpeech{
 globalThis.SpeechRecognition=FakeSpeech;
 let finals=[],states=[];
 const adapter=createSpeech({onState:x=>states.push(x),onText:()=>{},onFinal:x=>finals.push(x)});
-adapter.start();let result=[{transcript:'cat'}];result.isFinal=false;
+adapter.start('ja');assert.equal(current.lang,'ja-JP');let result=[{transcript:'cat'}];result.isFinal=false;
 current.onresult({resultIndex:0,results:[result]});assert.equal(finals.length,0);
 result.isFinal=true;current.onresult({resultIndex:0,results:[result]});assert.deepEqual(finals,['cat']);
 const stale=current.onresult;adapter.stop();stale({resultIndex:0,results:[result]});assert.equal(finals.length,1);
@@ -48,16 +64,17 @@ class Element{
  }
  set innerHTML(s){this.html=s;}get innerHTML(){return this.html||'';}
  replaceChildren(){this.children=[];}append(x){this.children.push(x);}
- setAttribute(){}showModal(){this.open=true;}close(){this.open=false;}
+ setAttribute(){}addEventListener(){}showModal(){this.open=true;}close(){this.open=false;}
 }
 const els={};const ids=[
  'players','count','category','micBtn','micStatus','transcript','left','right','roundText','dots','nextBtn','feedback',
  'scoreInstruction','pronounce','playerScores','score','categoryLabel','hintBtn','settings','result','settingsBtn',
  'restart','again','resultSettings','fullscreen','subtitle','leftLabel','rightLabel','resultScore','cancelFoul',
- 'manualFoul','playBtn','openingSettings','opening','gameApp','arenaState','playfield','stageCue'
+ 'manualFoul','playBtn','openingSettings','opening','gameApp','arenaState','playfield','stageCue',
+ 'language','judging','langQuick','countValue','countMinus','countPlus','openingTagline'
 ];
 ids.forEach(id=>els['#'+id]=new Element());
-els['#players'].value='4';els['#count'].value='6';els['#category'].value='all';
+els['#players'].value='4';els['#count'].value='6';els['#category'].value='all';els['#language'].value='en';els['#judging'].value='cards';
 const modes=['missing','common'].map(mode=>{const e=new Element();e.dataset.mode=mode;return e;});
 globalThis.document={
  querySelector:s=>els[s],
@@ -102,7 +119,10 @@ function correctWord(){
  return items.find(x=>x.id===match.dataset.id).en;
 }
 // Correct result pauses recognition and requires manual identification of the first player.
-speak(correctWord());assert.equal(els['#arenaState'].textContent,'CORRECT!');
+els['#langQuick'].onclick();assert.equal(els['#language'].value,'ja');assert.equal(current.lang,'ja-JP');
+const jpAnswer=items.find(x=>x.en===correctWord()).ja;
+speak(jpAnswer);assert.equal(els['#arenaState'].textContent,'CORRECT!');
+els['#langQuick'].onclick();assert.equal(els['#language'].value,'en');
 assert(!els['#micBtn'].classList.contains('listening'));
 assert(els['#nextBtn'].disabled);
 els['#playerScores'].children[2].onclick();assert(!els['#nextBtn'].disabled);
@@ -112,13 +132,15 @@ els['#playerScores'].children[2].onclick();assert.equal(els['#playerScores'].chi
 els['#nextBtn'].onclick();assert.equal(els['#arenaState'].textContent,'LOOK!');
 assert(current.started,'next round starts voice recognition inside Next click gesture');
 advanceToLive();
+els['#countPlus'].onclick();assert.equal(els['#countValue'].textContent,'7');
+assert.equal(els['#left'].children.length,6,'count changes from the next card, not mid-answer');
 // Incorrect spoken English always PAUSES; no penalty until human confirms.
 let bad=els['#left'].children.find(x=>els['#right'].children.some(y=>y.dataset.id===x.dataset.id));
 speak(items.find(x=>x.id===bad.dataset.id).en);
 assert.equal(els['#arenaState'].textContent,'PAUSED');
 assert(!els['#micBtn'].classList.contains('listening'));
 assert(!els['#cancelFoul'].hidden);
-assert(els['#feedback'].textContent.includes('不正解'));
+assert(els['#feedback'].textContent.includes('ストップ'));
 assert(!els['#feedback'].textContent.includes('答え：'));
 els['#cancelFoul'].onclick();
 assert.equal(els['#arenaState'].textContent,'SHOUT!');
@@ -130,6 +152,7 @@ assert(els['#playerScores'].children[0].disabled);
 speak(correctWord());els['#playerScores'].children[0].onclick();assert(els['#nextBtn'].disabled);
 els['#playerScores'].children[1].onclick();assert(!els['#nextBtn'].disabled);
 els['#nextBtn'].onclick();assert.equal(els['#arenaState'].textContent,'LOOK!');advanceToLive();
+assert.equal(els['#left'].children.length,7,'card count changed next round');
 assert(!els['#playerScores'].children[0].html.includes('この問題はお休み'));
 
 for(let r=3;r<=10;r++){
@@ -150,5 +173,5 @@ assert(els['#playerScores'].children[0].html.includes('<strong>0</strong>'));
 els['#nextBtn'].onclick();advanceToLive();assert(!els['#playerScores'].children[0].html.includes('この問題はお休み'));
 
 // Browser recognition ends from silence: it reconnects without requiring a mic click.
-const ended=current;ended.onend();advance(350);assert(current!==ended);assert(current.started);
-console.log('PASS: opening PLAY, single-card preview, sliding card, gesture mic activation, ignored early speech, auto-listen, voice pauses, wrong answer confirmation, score, 10 rounds, reset, solo, silent reconnect.');
+const ended=current;ended.onend();advance(400);assert(current!==ended);assert(current.started);
+console.log('PASS: bilingual vocabulary, adjustable 3-8 pictures, judging policy, opening PLAY, single-card preview, sliding card, gesture mic activation, ignored early speech, auto-listen, voice pauses, wrong answer confirmation, score, 10 rounds, reset, solo, silent reconnect.');

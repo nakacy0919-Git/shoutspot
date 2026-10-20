@@ -5,4 +5,9 @@ export const items=[
 ['🚗','car','車','things'],['🚲','bicycle','自転車','things'],['✈️','airplane','飛行機','things'],['🚀','rocket','ロケット','things'],['⚽','soccer ball','サッカーボール','things'],['🎸','guitar','ギター','things'],['📚','books','本','things'],['⏰','clock','時計','things'],['🔑','key','鍵','things'],['☂️','umbrella','傘','things'],['🎈','balloon','風船','things'],['👑','crown','王冠','things'],['🎁','present','プレゼント','things'],['🧸','teddy bear','クマのぬいぐるみ','things'],['💎','diamond','ダイヤモンド','things'],['👟','shoe','靴','things']
 ].map(([emoji,en,ja,category],id)=>({id,emoji,en,ja,category}));
 export function shuffle(a,rng=Math.random){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-export function makeRound(mode,count,category='all',rng=Math.random){const p=shuffle(items.filter(x=>category==='all'||x.category===category),rng);const left=p.slice(0,count);const answer=left[0];const right=mode==='missing'?left.slice(1):[answer,...p.slice(count,count*2-1)];return {left:shuffle(left,rng),right:shuffle(right,rng),answer};}
+export function makeRound(mode,count,category='all',rng=Math.random){
+ if(!Number.isInteger(count)||count<3||count>8)throw new RangeError('Picture count must be between 3 and 8');
+ if(!['missing','common'].includes(mode))throw new Error('Unknown game mode');
+ const pool=items.filter(x=>category==='all'||x.category===category);
+ if(pool.length<(mode==='common'?2*count-1:count))throw new RangeError('Not enough unique pictures');
+ const p=shuffle(pool,rng);const left=p.slice(0,count);const answer=left[0];const right=mode==='missing'?left.slice(1):[answer,...p.slice(count,count*2-1)];return {left:shuffle(left,rng),right:shuffle(right,rng),answer};}
