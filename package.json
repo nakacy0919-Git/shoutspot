@@ -1,0 +1,9 @@
+{
+  "name": "shout-spot",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Animated shout-and-spot English voice game for classrooms and iPad",
+  "scripts": {"start":"node server.js", "test":"node tests/verify.mjs"},
+  "engines": {"node": ">=18"}
+}
