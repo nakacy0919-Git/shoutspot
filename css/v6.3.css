@@ -1,0 +1,46 @@
+/* 6.3: controls at each player's short edge, facing that player. */
+.game-card::before {content:none!important;display:none!important}
+@media (orientation:landscape) {
+  .action-bar {position:relative;display:block;height:67px;flex:0 0 67px;padding:0}
+  .action-bar #first,.action-bar #second {
+    position:absolute;top:3px;width:clamp(116px,13.1vw,192px);height:57px;
+    min-width:0;display:flex;align-items:center;justify-content:center;
+    padding:5px;border:2px solid #ffefa877;border-radius:15px;
+    box-shadow:inset 0 1px 1px #fff6,0 4px 0 #09192370;
+  }
+  .action-bar #first {left:0;background:linear-gradient(145deg,#fdb08c,#dd6651)}
+  .action-bar #second {right:0;background:linear-gradient(145deg,#65dbc4,#198f95)}
+  .v63-button-face {display:flex;align-items:center;gap:5px;font-size:clamp(12px,1.3vw,17px);line-height:1;white-space:nowrap}
+  .v63-button-face b {font-size:19px}
+  #first .v63-button-face {transform:rotate(90deg)}
+  #second .v63-button-face {transform:rotate(-90deg)}
+  .action-bar #status {position:absolute;left:15%;right:15%;top:50%;transform:translateY(-50%);min-width:0;text-align:center;font-weight:900;pointer-events:none}
+}
+@media (orientation:portrait) {
+  .v63-button-face {display:flex;gap:6px;align-items:center;white-space:nowrap}
+}
+/* A word is revealed only after a round has been answered. */
+#answerReveal {position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:7;max-width:90%;padding:9px 18px;border:2px solid #fff7d4;border-radius:14px;background:linear-gradient(145deg,#203a45ee,#112832ee);color:#fff8e6;box-shadow:0 7px 14px #0006;font-size:clamp(14px,1.6vw,21px);font-weight:900;text-align:center;white-space:nowrap;pointer-events:none}
+/* Pronunciation bonus: keep cards visible, hide tap choices until bonus is resolved. */
+.board:has(.table[data-phase=bonus]) .answer-choices {visibility:hidden}
+#bonusPanel {position:absolute;z-index:12;bottom:14px;left:50%;transform:translateX(-50%);width:min(460px,85%);padding:12px 16px;border:2px solid #fff4b3;border-radius:20px;background:linear-gradient(145deg,#122e3af2,#24565bf5);color:#fffef3;box-shadow:0 11px 30px #000a,0 0 0 4px #ffce6d38;text-align:center;pointer-events:none}
+#bonusPanel .bonus-eyebrow {font-weight:900;color:#ffda70;font-size:11px;letter-spacing:.18em}
+#bonusPanel .bonus-word {font-size:clamp(24px,3vw,41px);font-weight:1000;line-height:1.16;letter-spacing:.02em}
+#bonusPanel .bonus-japanese {font-size:clamp(11px,1.4vw,16px);font-weight:800;color:#d1f3eb}
+#bonusTranscript {font-size:clamp(11px,1.4vw,16px);font-weight:750;min-height:20px;margin-top:4px;overflow-wrap:anywhere}
+#bonusTranscript.passed {color:#ffeb84;font-size:clamp(15px,2vw,22px)}
+#bonusPanel.success {border-color:#ffffff;box-shadow:0 0 45px #fced7c,0 0 110px #1bff98,0 11px 35px #000c;animation:bonus-jackpot .42s 2 alternate}
+.bonus-side-controls {flex:1 1 auto;min-height:0;display:flex;flex-direction:column;justify-content:center;gap:13px}
+.bonus-rail-button {width:100%;min-height:0;flex:0 1 90px;border-radius:17px;border:3px solid #fff9e9;background:linear-gradient(145deg,#ffe285,#ff9349);box-shadow:inset 0 2px #fff6,0 6px 0 #693c25;font-weight:1000;color:#543126;display:grid;place-items:center;font-size:clamp(14px,1.8vw,23px)}
+.bonus-rail-button.skip {flex:0 1 65px;font-size:clamp(10px,1.2vw,16px);background:linear-gradient(145deg,#fffaf0,#dddccf);box-shadow:0 3px 0 #4b6360}
+.side-one .bonus-rail-button span {transform:rotate(90deg)}
+.side-two .bonus-rail-button span {transform:rotate(-90deg)}
+.bonus-rail-button:disabled {opacity:.55}
+@keyframes bonus-jackpot {to {filter:brightness(1.6) saturate(1.4);transform:translateX(-50%) scale(1.06)}}
+@media (orientation:portrait) {
+  .bonus-side-controls {flex:0 0 165px;flex-direction:row;align-items:stretch;gap:5px}
+  .bonus-rail-button,.bonus-rail-button.skip {flex:1 1 0;font-size:12px;min-width:0}
+  .side-one .bonus-rail-button span,.side-two .bonus-rail-button span {transform:none}
+  #bonusPanel {bottom:6px;padding:8px 12px}
+}
+@media (prefers-reduced-motion:reduce) {#bonusPanel.success{animation:none}}

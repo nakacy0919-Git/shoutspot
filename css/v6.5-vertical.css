@@ -1,0 +1,168 @@
+/* ===== Shout Spot v6.5 : true vertical labels ===== */
+
+/* 1枚目 / 2枚目 のボタン */
+.action-bar #first,
+.action-bar #second {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 0 !important;
+}
+
+.action-bar #first .v65-vertical-wrap,
+.action-bar #second .v65-vertical-wrap {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  transform-origin: center;
+  pointer-events: none;
+}
+
+.action-bar #first .v65-vertical-wrap {
+  transform: rotate(90deg);
+}
+
+.action-bar #second .v65-vertical-wrap {
+  transform: rotate(-90deg);
+}
+
+.v65-vertical-stack {
+  display: grid;
+  grid-auto-rows: min-content;
+  justify-items: center;
+  align-content: center;
+  gap: 2px;
+  line-height: 1;
+  font-weight: 1000;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.v65-vertical-stack > span {
+  display: block;
+}
+
+.action-bar .v65-vertical-stack {
+  font-size: clamp(13px, 1.08vw, 17px);
+  color: #fffdf8;
+  text-shadow: 0 1px 2px #00000055;
+}
+
+.action-bar .v65-vertical-stack .v65-mark {
+  font-size: clamp(16px, 1.28vw, 20px);
+  margin-bottom: 1px;
+}
+
+/* 既存の回転表示を無効化 */
+#first .v64-face,
+#second .v64-face {
+  transform: none !important;
+}
+
+/* 読む / スキップ ボタン */
+.bonus-side-controls {
+  gap: 12px;
+}
+
+.bonus-rail-button {
+  display: grid !important;
+  place-items: center !important;
+  overflow: hidden;
+  padding: 0 !important;
+}
+
+.bonus-rail-button .v65-vertical-wrap {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  transform-origin: center;
+  pointer-events: none;
+}
+
+.side-one .bonus-rail-button .v65-vertical-wrap {
+  transform: rotate(90deg);
+}
+
+.side-two .bonus-rail-button .v65-vertical-wrap {
+  transform: rotate(-90deg);
+}
+
+.bonus-rail-button .v65-vertical-stack {
+  font-size: clamp(14px, 1.55vw, 22px);
+  color: #4f2f24;
+  text-shadow: 0 1px 0 #ffffff99;
+}
+
+.bonus-rail-button.skip .v65-vertical-stack {
+  font-size: clamp(12px, 1.25vw, 18px);
+}
+
+.bonus-rail-button .v65-mark {
+  font-size: clamp(16px, 1.5vw, 22px);
+  margin-bottom: 1px;
+}
+
+/* 以前の span 回転を無効化 */
+.side-one .bonus-rail-button span,
+.side-two .bonus-rail-button span {
+  transform: none !important;
+}
+
+/* ボタンにもっと綺麗な立体感 */
+.bonus-rail-button,
+.action-bar #first,
+.action-bar #second {
+  border-radius: 17px;
+  box-shadow:
+    inset 0 2px 0 #ffffff88,
+    0 5px 0 #6b442d,
+    0 10px 16px #0000002a;
+}
+
+.bonus-rail-button.skip {
+  box-shadow:
+    inset 0 2px 0 #ffffff88,
+    0 4px 0 #5c6664,
+    0 8px 12px #0000001f;
+}
+
+/* ステータス少し見やすく */
+.action-bar #status {
+  font-size: clamp(16px, 1.5vw, 23px);
+  font-weight: 1000;
+}
+
+/* 小さめ端末調整 */
+@media (orientation: landscape) and (max-height: 760px) {
+  .action-bar .v65-vertical-stack {
+    font-size: clamp(12px, 0.98vw, 15px);
+  }
+  .action-bar .v65-vertical-stack .v65-mark {
+    font-size: clamp(14px, 1.05vw, 18px);
+  }
+  .bonus-rail-button .v65-vertical-stack {
+    font-size: clamp(12px, 1.2vw, 17px);
+  }
+}
+
+@media (orientation: portrait) {
+  .action-bar #first .v65-vertical-wrap,
+  .action-bar #second .v65-vertical-wrap,
+  .side-one .bonus-rail-button .v65-vertical-wrap,
+  .side-two .bonus-rail-button .v65-vertical-wrap {
+    transform: none;
+  }
+
+  .v65-vertical-stack {
+    grid-auto-flow: column;
+    grid-auto-columns: min-content;
+    gap: 4px;
+  }
+
+  .action-bar .v65-vertical-stack,
+  .bonus-rail-button .v65-vertical-stack {
+    font-size: 12px;
+  }
+}

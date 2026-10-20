@@ -1,0 +1,93 @@
+@media (orientation: landscape) {
+  .action-bar #first,
+  .action-bar #second {
+    overflow: hidden;
+    padding: 3px 8px;
+    align-items: center;
+    justify-content: center;
+    isolation: isolate;
+  }
+
+  .action-bar .v64-face {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    width: max-content;
+    flex: none;
+    font-size: clamp(14px, 1.13vw, 17px);
+    font-weight: 1000;
+    line-height: 1.02;
+    white-space: nowrap;
+    transform-origin: center;
+    pointer-events: none;
+  }
+
+  .action-bar .v64-face b {
+    font-size: 19px;
+    line-height: 1;
+  }
+
+  #first .v64-face {
+    transform: rotate(90deg);
+  }
+
+  #second .v64-face {
+    transform: rotate(-90deg);
+  }
+
+  .action-bar #status {
+    left: 17%;
+    right: 17%;
+    font-size: clamp(16px, 1.55vw, 22px);
+    line-height: 1.1;
+    font-weight: 1000;
+    color: #fff9e9;
+    text-shadow: 0 3px 6px #0018279a;
+  }
+}
+
+/* 次の操作ボタンを点滅 */
+.action-bar button.v64-ready:not(:disabled) {
+  opacity: 1;
+  animation: v64-pulse 1.16s ease-in-out infinite;
+}
+
+@keyframes v64-pulse {
+  0%, 100% {
+    filter: brightness(1);
+    box-shadow: 0 4px 0 #10212e80;
+  }
+  50% {
+    filter: brightness(1.2);
+    box-shadow:
+      0 4px 0 #10212e80,
+      0 0 0 7px #ffefac20,
+      0 0 27px 4px #ffebaabb;
+  }
+}
+
+@media (orientation: portrait) {
+  .action-bar .v64-face {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    white-space: nowrap;
+    font-size: clamp(11px, 1.5vw, 15px);
+  }
+
+  .action-bar #status {
+    font-size: clamp(12px, 2vw, 17px);
+    font-weight: 1000;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .action-bar button.v64-ready:not(:disabled) {
+    animation: none;
+    outline: 3px solid #ffe58e;
+  }
+}

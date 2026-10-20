@@ -1,13 +1,13 @@
-// Shout Spot v3: English/Japanese, iPad-first, configurable cards & clear voice turn-taking.
+﻿// Shout Spot v4: teacher-controlled card reveals, READY / GO voice gate, bilingual iPad play.
 import {makeRound} from './engine.js';
 import {createSpeech,classifySpeech} from './speech.js';
 const $=s=>document.querySelector(s);
-const PREVIEW_MS=550, SLIDE_MS=800, TOTAL_ROUNDS=10, MIN_PICTURES=3,MAX_PICTURES=8;
+const FIRST_SLIDE_MS=500, SECOND_SLIDE_MS=800, GO_FLASH_MS=700, TOTAL_ROUNDS=10, MIN_PICTURES=3,MAX_PICTURES=8;
 const LANG={en:{short:'EN',label:'英語',locale:'en-US'},ja:{short:'JP',label:'日本語',locale:'ja-JP'}};
 const CATEGORIES={all:'ALL PICTURES',animals:'ANIMALS',food:'FOOD',things:'THINGS'};
 let mode='missing',round=1,scores=[],players=4,count=6,category='all',language='en',judging='cards',data;
 let solved=false,awarded=false,hint=false,voiceMode=false,listening=false,pendingFoul=false;
-let phase='lobby'; // lobby, preview, entering, playing, paused, solved
+let phase='lobby'; // lobby, waiting, preview, entering, playing, paused, solved
 let out=new Set(),timers=new Set(),autoRetry=null,voiceBlocked=false;
 const speech=createSpeech({
  onState:voiceState,
@@ -30,14 +30,14 @@ function displayWord(item){return item[language];}
 function languageLabel(){return LANG[language].label;}
 function setPhase(next){
  phase=next;
- const names={lobby:'READY',preview:'LOOK!',entering:'GET READY',playing:'SHOUT!',paused:'PAUSED',solved:'CORRECT!'};
+ const names={lobby:'READY',waiting:'STANDBY',preview:'LOOK!',entering:'READY...',playing:'SHOUT!',paused:'PAUSED',solved:'CORRECT!'};
  const tag=$('#arenaState');tag.textContent=names[next]||'READY';tag.className='live-tag phase-'+next;
  $('#playfield').dataset.phase=next;
 }
 function voiceState(state){
  listening=['listening','starting'].includes(state);
  $('#micBtn').classList.toggle('listening',listening);
- $('#micBtn').textContent=listening?'■ マイクON・停止':'🎙 マイクを再開';
+ $('#micBtn').textContent=listening?(phase==='entering'?'🎙 マイク準備中':'■ マイクON・停止'):'🎙 マイクを再開';
  const messages={starting:'マイクを準備しています…',listening:`● LIVE！ ${languageLabel()}で答えよう！`,idle:'音声認識を再接続しています…',
   'no-speech':'声を待っています。再接続します…',
   'not-allowed':'マイクが許可されていません。設定を確認するか、絵をタップしてください。',
@@ -47,8 +47,8 @@ function voiceState(state){
   failed:'マイクを自動起動できませんでした。「マイクを再開」を押してください。',
   aborted:'マイクを停止しました。タップで回答するかマイクを再開してください。',
   'language-not-supported':`${languageLabel()}の音声認識に対応していません。絵をタップしてください。`};
- if((phase==='preview'||phase==='entering')&&listening){
-  $('#micBtn').textContent='🎙 音声を準備中';$('#micStatus').textContent='カードを準備中。２枚そろったら回答受付！';return;
+ if(phase==='entering'&&listening){
+  $('#micBtn').textContent='🎙 マイク準備中';$('#micStatus').textContent='READY… ２枚目が止まるまで判定しません。';return;
  }
  $('#micStatus').textContent=messages[state]||'マイクを再開して回答してください。';
  if(['not-allowed','service-not-allowed','audio-capture','network','unsupported','failed','language-not-supported'].includes(state))voiceBlocked=true;
@@ -62,14 +62,14 @@ function stopVoice(){
  $('#micBtn').classList.remove('listening');$('#micBtn').textContent='🎙 マイクを再開';
 }
 function startVoice(){
- if(phase==='lobby'||phase==='paused'||phase==='solved'||solved||pendingFoul||!speech.supported)return;
+ if(!['entering','playing'].includes(phase)||solved||pendingFoul||!speech.supported)return;
  voiceMode=true;voiceBlocked=false;
  if('speechSynthesis' in window)window.speechSynthesis.cancel();
  speech.start(language);
 }
 function primeVoiceFromGesture(){
- // Safari/iPad: ask for mic permission in the real PLAY/Next tap gesture.
- // Words spoken before the slide finishes are deliberately ignored by onFinal.
+ // Safari/iPad: start the permission/recognition request inside the second-card tap.
+ // Everything heard until GO is ignored. Browsers may reject delayed microphone starts.
  if(voiceMode&&speech.supported){voiceBlocked=false;startVoice();}
 }
 function drawCard(id,arr){
@@ -113,7 +113,7 @@ function award(i){
 }
 function beginFoul(text=''){
  if(phase!=='playing'||solved||pendingFoul)return;
- pendingFoul=true;stopVoice();setPhase('paused');$('#stageCue').textContent='PAUSED';$('#micBtn').disabled=true;
+ pendingFoul=true;stopVoice();setPhase('paused');$('#stageCue').textContent='PAUSED';$('#micBtn').disabled=true;$('#micBtn').textContent='■ STOP（判定中）';
  if(text)$('#transcript').textContent=`聞き取った答え：${text}`;
  message(text?`「${text}」でストップ！ お手つきならプレイヤーを選択。`:'お手つきした人を選んでください。','error');
  $('#micStatus').textContent='音声認識を一時停止しています。認識ミスなら取り消せます。';
@@ -121,7 +121,7 @@ function beginFoul(text=''){
 }
 function confirmFoul(i){
  if(!pendingFoul||solved||out.has(i))return;
- out.add(i);pendingFoul=false;$('#micBtn').disabled=!speech.supported;
+ out.add(i);pendingFoul=false;if($('#penaltyV5')?.value==='on')scores[i]--;$('#micBtn').disabled=!speech.supported;
  if(out.size===players){
   setPhase('playing');finish();awarded=true;renderScores();
   message(`全員お手つき。答え：${data.answer.emoji} ${displayWord(data.answer)}`,'error');
@@ -154,7 +154,7 @@ function setLanguage(next){
  if(!LANG[next]||next===language)return;
  stopVoice();language=next;refreshLanguageUI();redrawCurrentCards();
  if(phase==='playing'&&voiceMode){startVoice();message(`回答言語を${languageLabel()}に変更しました。ゲーム続行！`);}
- else if(phase==='preview'||phase==='entering'){primeVoiceFromGesture();}
+ else if(phase==='entering'){primeVoiceFromGesture();}
  if(phase==='solved'){
   $('#feedback').textContent=`正解！ ${data.answer.emoji} ${displayWord(data.answer)}`;
   document.querySelectorAll('.symbol').forEach(b=>{b.disabled=true;if(Number(b.dataset.id)===data.answer.id)b.classList.add('correct','reveal');});
@@ -168,38 +168,69 @@ function updateCount(next){
  if(phase!=='lobby')message(`絵の数は${value}個。次のカードから適用されます。`);
 }
 function newRound(){
+ voiceMode=$('#inputMode')?.value!=='tap'; // Every new round is voice-ready when card B is revealed, even after a manual mute.
  clearScheduled();stopVoice();solved=false;awarded=false;pendingFoul=false;out.clear();
  data=makeRound(mode,count,category);redrawCurrentCards();
  $('#roundText').innerHTML=`ROUND <b>${String(round).padStart(2,'0')}</b> / ${TOTAL_ROUNDS}`;
  $('#dots').innerHTML=Array.from({length:TOTAL_ROUNDS},(_,i)=>`<i class="${i<round-1?'done':i===round-1?'current':''}"></i>`).join('');
  $('#nextBtn').disabled=true;$('#nextBtn').innerHTML=round===TOTAL_ROUNDS?'結果を見る <span>→</span>':'次のカード <span>→</span>';
- message(`１枚目を見よう。２枚目が来たら${languageLabel()}で SHOUT!`);
- $('#scoreInstruction').textContent='正解が出たら、先に言った人をタップ';
- $('#pronounce').hidden=true;$('#transcript').textContent=`２枚そろったら${languageLabel()}で叫ぼう！`;
- $('#micBtn').disabled=true;$('#micStatus').textContent='２枚目のカードを準備しています…';
+ message('まず「① 1枚目」を押してカードAを見よう。');
+ $('#scoreInstruction').textContent='2枚目のカードとGOの合図を待とう';
+ $('#pronounce').hidden=true;$('#transcript').textContent='まだ回答しないでね。GO! から判定開始。';
+ $('#micBtn').disabled=true;$('#micBtn').textContent='■ マイク停止中';
+ $('#micStatus').textContent='待機中：2枚目のボタンを押すまでマイクは起動しません。';
  if(!speech.supported)voiceState('unsupported');renderScores();
- const field=$('#playfield');field.classList.remove('cards-ready');field.classList.add('first-only');
- $('#stageCue').textContent='LOOK AT CARD A';setPhase('preview');
+ const field=$('#playfield');field.classList.remove('cards-ready','first-only');field.classList.add('empty-cards');
+ $('#stageCue').classList.remove('gone');$('#stageCue').textContent='WAIT FOR CARD A';
+ $('#showFirstBtn').disabled=false;$('#showSecondBtn').disabled=true;
+ $('#showFirstBtn').classList.add('primary-step');$('#showSecondBtn').classList.remove('primary-step');
+ $('#revealHelp').textContent='ボタンを押すまで絵は見えません';
+ setPhase('waiting');
+}
+function showFirst(){
+ if(phase!=='waiting'||$('#settings').open||$('#result').open)return;
+ const field=$('#playfield');setPhase('preview');
+ field.classList.remove('empty-cards');field.classList.add('first-only');
+ $('#showFirstBtn').disabled=true;$('#showSecondBtn').disabled=true;
+ $('#stageCue').textContent='LOOK AT CARD A';
+ $('#revealHelp').textContent='1枚目をよく見て、2枚目に備えよう';
+ message('カードAを観察しよう。準備ができたら「② 2枚目」を押してね。');
  schedule(()=>{
   if(phase!=='preview')return;
-  setPhase('entering');$('#stageCue').textContent='HERE COMES CARD B!';
-  field.classList.remove('first-only');field.classList.add('cards-ready');
- },PREVIEW_MS);
+  $('#showSecondBtn').disabled=false;$('#showSecondBtn').classList.add('primary-step');
+  $('#revealHelp').textContent='準備OK？ 2枚目を押したら Ready → GO!';
+ },FIRST_SLIDE_MS);
+}
+function showSecond(){
+ if(phase!=='preview'||$('#showSecondBtn').disabled||$('#settings').open||$('#result').open)return;
+ const field=$('#playfield');setPhase('entering');
+ $('#showFirstBtn').disabled=true;$('#showSecondBtn').disabled=true;$('#showSecondBtn').classList.remove('primary-step');
+ $('#revealHelp').textContent='READY… GO! の合図から答えてね';
+ $('#stageCue').textContent='READY...';
+ field.classList.remove('first-only');field.classList.add('cards-ready');
+ message('READY… まだ声は判定しません。GO! を待とう！');
+ // Safari requires a user gesture. Arm recognition here, never at the first-card reveal.
+ // Interim/final transcripts during animation are deliberately ignored.
+ if(voiceMode)primeVoiceFromGesture();
  schedule(()=>{
   if(phase!=='entering')return;
-  setPhase('playing');$('#stageCue').textContent='SHOUT!';
-  $('#micBtn').disabled=!speech.supported;$('#micBtn').textContent=listening?'■ マイクON・停止':'🎙 マイクを再開';
-  message(`GAME ON！ ${languageLabel()}で絵の名前を叫ぼう！`);renderScores();
+  setPhase('playing');$('#stageCue').classList.remove('gone');$('#stageCue').textContent='GO!';
+  $('#micBtn').disabled=!speech.supported;
+  $('#micBtn').textContent=listening?'■ マイクON・停止':'🎙 マイクを再開';
+  message(`GO! ${languageLabel()}で見つけた絵の名前を叫ぼう！`);$('#transcript').textContent='声を聞いています。絵の名前を答えてね！';renderScores();
+  $('#revealHelp').textContent='GO! 回答受付中';
   if(!speech.supported){voiceState('unsupported');return;}
   if(voiceMode){
-   if(!listening&&!voiceBlocked)startVoice();else if(listening)$('#micStatus').textContent=`● LIVE！ ${languageLabel()}で答えよう！`;
+   if(!listening&&!voiceBlocked)startVoice();
+   else if(listening)$('#micStatus').textContent=`● LIVE！ ${languageLabel()}で答えよう！`;
   }else $('#micStatus').textContent='マイクを再開するか、絵をタップして回答。';
- },PREVIEW_MS+SLIDE_MS);
+  schedule(()=>{if(phase==='playing')$('#stageCue').classList.add('gone');},GO_FLASH_MS);
+ },SECOND_SLIDE_MS);
 }
 function finish(){
  if(solved||pendingFoul)return;
  solved=true;stopVoice();setPhase('solved');$('#stageCue').textContent='CORRECT!';
- $('#micBtn').disabled=true;$('#micStatus').textContent='ゲーム停止！ 先に答えたプレイヤーは？';
+ $('#micBtn').disabled=true;$('#micBtn').textContent='■ STOP（判定完了）';$('#micStatus').textContent='マイク停止！ 先に答えたプレイヤーは？';
  document.querySelectorAll('.symbol').forEach(b=>{b.disabled=true;if(Number(b.dataset.id)===data.answer.id)b.classList.add('correct','reveal');});
  message(`正解！ ${data.answer.emoji} ${displayWord(data.answer)}`,'success');
  $('#scoreInstruction').textContent='先に言った人のスコアをタップして ＋1';
@@ -216,10 +247,12 @@ function reset(){
 function launch(){
  if(phase!=='lobby')return;
  $('#gameApp').inert=false;$('#opening').classList.add('leaving');
- voiceMode=true;reset();primeVoiceFromGesture();
+ voiceMode=true;reset();
  schedule(()=>{$('#opening').hidden=true;},280);
 }
 $('#playBtn').onclick=launch;
+$('#showFirstBtn').onclick=showFirst;
+$('#showSecondBtn').onclick=showSecond;
 $('#openingSettings').onclick=()=>$('#settings').showModal();
 $('#cancelFoul').onclick=cancelFoul;
 $('#manualFoul').onclick=()=>{if(phase==='playing')beginFoul();};
@@ -236,7 +269,7 @@ document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{
  mode=b.dataset.mode;document.querySelectorAll('[data-mode]').forEach(x=>x.classList.toggle('selected',x===b));
  $('#leftLabel').textContent=mode==='missing'?'お手本のカード':'１枚目のカード';
  $('#rightLabel').textContent=mode==='missing'?'ひとつ足りないカード':'２枚目のカード';
- refreshLanguageUI();if(phase!=='lobby'){reset();primeVoiceFromGesture();}
+ refreshLanguageUI();if(phase!=='lobby')reset();
 });
 $('#nextBtn').onclick=()=>{
  if(!awarded)return;
@@ -244,7 +277,7 @@ $('#nextBtn').onclick=()=>{
   stopVoice();const best=Math.max(...scores),winners=scores.map((s,i)=>s===best?i+1:null).filter(Boolean);
   $('#resultScore').textContent=players===1?`${scores[0]} / ${TOTAL_ROUNDS} POINTS`:scores.map((s,i)=>`P${i+1}  ${s} POINTS`).join('\n')+'\n'+(winners.length===1?`プレイヤー ${winners[0]} の勝ち！`:'引き分け！');
   $('#result').showModal();
- }else{round++;newRound();primeVoiceFromGesture();}
+ }else{round++;newRound();}
 };
 $('#hintBtn').onclick=()=>{
  hint=!hint;document.body.classList.toggle('show-words',hint);refreshLanguageUI();
@@ -261,9 +294,9 @@ $('#settings').addEventListener('close',()=>{
 });
 $('#restart').onclick=()=>{
  $('#settings').close();if(phase==='lobby'){language=$('#language').value;refreshLanguageUI();return;}
- reset();primeVoiceFromGesture();
+ reset();
 };
-$('#again').onclick=()=>{$('#result').close();reset();primeVoiceFromGesture();};
+$('#again').onclick=()=>{$('#result').close();reset();};
 $('#resultSettings').onclick=()=>{$('#result').close();$('#settings').showModal();};
 $('#fullscreen').onclick=async()=>{
  try{if(document.fullscreenElement)await document.exitFullscreen();else if(document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();else message('Safariの共有から「ホーム画面に追加」で大きく表示できます。');}
@@ -274,3 +307,4 @@ document.addEventListener('visibilitychange',()=>{
 });
 window.addEventListener('pagehide',()=>{clearScheduled();stopVoice();});
 $('#gameApp').inert=true;refreshLanguageUI();setPhase('lobby');
+

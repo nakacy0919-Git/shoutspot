@@ -1,14 +1,1 @@
-{
-  "name": "shout-spot",
-  "version": "3.0.0",
-  "private": true,
-  "type": "module",
-  "description": "Bilingual English/Japanese voice-driven spot game with iPad layout and adjustable card counts",
-  "scripts": {
-    "start": "node server.js",
-    "test": "node tests/verify.mjs"
-  },
-  "engines": {
-    "node": ">=18"
-  }
-}
+{"name":"shout-spot","version":"6.0.0","private":true,"type":"module","description":"Japanese-first iPad tabletop 2 player spotting game","scripts":{"start":"node server.js","test":"node tests/verify.mjs"},"engines":{"node":">=18"}}

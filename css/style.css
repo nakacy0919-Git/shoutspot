@@ -114,3 +114,35 @@
  .symbol{width:27%;height:27%}
 }
 @media(prefers-reduced-motion:reduce){.opening-play,.intro-screen,.playfield>.card-wrap{transition:none!important}}
+
+/* V4: teacher-controlled reveal buttons and no early peeking. */
+.reveal-controls{max-width:1050px;margin:9px auto 2px;display:flex;align-items:center;justify-content:center;gap:10px;min-height:47px;flex-wrap:wrap}
+.reveal-btn{border:1.5px solid #cfd7d2;background:#fffdf7;color:#2c4050;border-radius:13px;font-size:13px;font-weight:900;padding:10px 19px;min-height:43px;min-width:190px;box-shadow:0 2px 0 #dde4df}
+.reveal-btn.primary-step:not(:disabled){background:#263e4d;color:#fff;border-color:#263e4d;box-shadow:0 4px 0 #172c35}
+.reveal-btn:disabled{opacity:.38;box-shadow:none;cursor:default}
+#revealHelp{font-size:10px;color:#75848a;min-width:165px;line-height:1.4}
+.playfield.empty-cards>.card-wrap:nth-child(2){transform:translateX(-85vw);opacity:0;pointer-events:none}
+.playfield.empty-cards>.card-wrap:last-of-type{transform:translateX(85vw);opacity:0;pointer-events:none}
+.playfield.empty-cards .versus{opacity:0}
+.playfield[data-phase="waiting"] .symbol{pointer-events:none}
+.live-tag.phase-waiting{background:#e5e8e2;color:#5d716e}
+.live-tag.phase-entering{background:#ffe2a8;color:#7d4c23;animation:pulse-dot .6s infinite}
+.playfield[data-phase="playing"] .stage-cue{display:block;background:#f0794e;color:white;font-size:21px;padding:10px 24px;box-shadow:0 5px 0 #9a4c31;animation:shout-appear .28s both}
+.playfield[data-phase="playing"] .stage-cue.gone{display:none}
+.playfield[data-phase="paused"] .stage-cue,.playfield[data-phase="solved"] .stage-cue{display:block}
+@media(min-width:701px) and (max-height:850px){
+ .reveal-controls{margin:5px auto 0;min-height:39px;gap:8px}
+ .reveal-btn{min-height:35px;padding:7px 13px;font-size:11px;min-width:165px}
+ #revealHelp{font-size:9px}
+ .card{max-width:min(39vw,calc(100dvh - 505px))}
+ .playfield{margin-top:5px;margin-bottom:6px}
+ .voice-panel{margin-top:5px}
+}
+@media(max-width:700px){
+ .reveal-controls{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:10px auto 0}
+ .reveal-btn{min-width:0;width:100%;font-size:11px;min-height:45px;padding:8px 7px}
+ #revealHelp{grid-column:1/-1;text-align:center;min-width:0;font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){.reveal-btn{box-shadow:none!important}}
+/* Extra breathing room for the maximum eight-player layout on compact iPads. */
+@media(min-width:701px) and (max-height:850px){body[data-players="8"] .card{max-width:min(39vw,calc(100dvh - 535px))}}
