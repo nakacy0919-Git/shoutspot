@@ -1,0 +1,62 @@
+/* Shout Spot iPhone responsive layout — overrides tablet-only geometry. */
+@media (max-width: 600px) {
+ html,body{width:100%;height:100%;overflow:hidden}
+ .frame{height:100dvh;min-height:0;padding:max(3px,env(safe-area-inset-top)) max(4px,env(safe-area-inset-right)) max(3px,env(safe-area-inset-bottom)) max(4px,env(safe-area-inset-left))}
+ header{min-height:38px;flex:0 0 38px;padding:0 3px;gap:3px}
+ .brand{gap:3px;font-size:16px}.brand strong{font-size:12px;letter-spacing:0}.brand small{display:none}
+ .topcenter{padding:4px 5px;gap:3px;font-size:9px}.topcenter b{font-size:11px}
+ .header-actions{gap:3px}.header-actions button{width:31px;height:31px;font-size:18px;border-radius:8px}
+ .action-bar{flex:0 0 48px;height:48px;gap:4px;padding:2px}
+ .action-bar button{min-width:0;flex:0 1 34%;height:42px;border-radius:9px;box-shadow:0 2px 0 #0004}
+ .action-bar #status{flex:1 1 32%;min-width:0;font-size:clamp(10px,2.8vw,14px);line-height:1.1;overflow-wrap:anywhere}
+ .action-bar #first,.action-bar #second{position:relative!important;inset:auto!important;min-width:0!important}
+ .action-bar #first .v65-body,.action-bar #second .v65-body{font-size:clamp(10px,2.8vw,13px)!important}
+ .board{flex:1 1 auto;min-height:0;gap:3px;padding:1px;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(55px,12%) minmax(0,1fr) minmax(55px,12%)}
+ .player-side{min-width:0;min-height:0;flex-direction:row;align-items:stretch;padding:3px;gap:3px;border-width:2px;border-radius:10px;overflow:hidden}
+ .scoreplate{flex:0 0 43px;min-width:0;gap:2px;border-radius:7px}
+ .scoreplate span{font-size:10px}.scoreplate strong{font-size:18px}
+ .side-one .scoreplate span,.side-one .scoreplate strong,.side-two .scoreplate span,.side-two .scoreplate strong{transform:none}
+ .answer-choices{flex:1 1 auto;width:auto;min-width:0;min-height:0;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));grid-template-rows:minmax(0,1fr);gap:2px;padding:0;overflow:hidden}
+ .answer-tile{width:100%;height:100%;min-width:0;min-height:0;aspect-ratio:auto;border-radius:5px;border-width:1px;font-size:clamp(13px,4.1vw,22px);transform:none!important}
+ .table{min-height:0;min-width:0;border-width:3px;border-radius:12px}
+ .card-layer{min-height:0;grid-template-columns:minmax(0,1fr) 10px minmax(0,1fr);gap:1px;padding:2px}
+ .card-seat{min-width:0;min-height:0}
+ .card-seat .card-caption{font-size:8px;margin-bottom:3px;letter-spacing:0}
+ .game-card{width:min(100%,calc((100vw - 38px)/2),calc(100dvh - 280px));border-width:4px}
+ .token{font-size:clamp(14px,4.6vw,28px)}
+ .vs{font-size:12px}
+ .cue{font-size:clamp(27px,10vw,55px)}.burst{font-size:clamp(20px,7vw,40px)}
+ footer{flex:0 0 22px;min-height:22px;padding:0 5px;font-size:8px;letter-spacing:0}
+ .splash{padding:env(safe-area-inset-top) 8px env(safe-area-inset-bottom)}
+ .intro-box{padding:10px}.intro-box h1{font-size:clamp(56px,17vw,105px);margin:12px 0}.intro-symbols{font-size:35px}
+ .play{padding:12px 45px;font-size:22px}
+ dialog{max-height:calc(100dvh - 20px);overflow-y:auto;padding:16px}
+ #settings{width:calc(100vw - 16px)}.settings-grid{gap:8px}.settings-grid select{padding:8px}
+}
+@media (max-width: 950px) and (orientation: landscape) and (max-height: 500px){
+ .frame{height:100dvh;padding:max(2px,env(safe-area-inset-top)) max(4px,env(safe-area-inset-right)) max(2px,env(safe-area-inset-bottom)) max(4px,env(safe-area-inset-left))}
+ header{min-height:30px;flex:0 0 30px;padding:0 5px}.brand{font-size:15px}.brand strong{font-size:12px}.brand small{display:none}
+ .topcenter{padding:2px 5px;font-size:10px}.topcenter b{font-size:12px}
+ .header-actions button{height:27px;width:30px;font-size:17px}
+ .action-bar{height:38px;flex:0 0 38px;padding:1px;gap:5px}
+ .action-bar button{min-width:0!important;height:34px;padding:2px 8px;font-size:11px}
+ .action-bar #status{min-width:0;font-size:12px}
+ .action-bar #first,.action-bar #second{position:relative!important;inset:auto!important}
+ .action-bar #first .v65-body,.action-bar #second .v65-body{font-size:11px!important}
+ .board{min-height:0;grid-template-columns:minmax(60px,14%) minmax(0,1fr) minmax(60px,14%);grid-template-rows:minmax(0,1fr);gap:3px;padding:1px}
+ .player-side{min-height:0;flex-direction:column;padding:2px;gap:3px;border-width:2px;border-radius:9px}
+ .scoreplate{flex:0 0 34px;min-height:34px;border-radius:7px;gap:4px}
+ .scoreplate span{font-size:11px}.scoreplate strong{font-size:19px}
+ .answer-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr));gap:2px;min-height:0;padding:0}
+ .answer-tile{width:100%;height:100%;min-height:0;aspect-ratio:auto;border-width:1px;border-radius:5px;font-size:clamp(15px,3.8dvh,23px)}
+ .side-one .answer-tile,.side-two .answer-tile{transform:none!important}
+ .table{min-height:0;border-width:3px;border-radius:12px}
+ .card-layer{grid-template-columns:minmax(0,1fr) 12px minmax(0,1fr);padding:2px;gap:1px}
+ .card-seat .card-caption{font-size:8px;margin-bottom:2px}
+ .game-card{width:min(100%,calc(100dvh - 125px));border-width:4px}
+ .token{font-size:clamp(15px,5dvh,28px)}.vs{font-size:13px}
+ footer{flex:0 0 17px;min-height:17px;font-size:8px;padding:0 6px}
+ .cue{font-size:clamp(30px,9dvh,55px)}
+ dialog{max-height:calc(100dvh - 12px);overflow-y:auto;padding:12px}
+ .splash{overflow:auto}.intro-box h1{font-size:clamp(55px,14dvh,85px);margin:5px}.intro-symbols{font-size:28px}.intro-box p{font-size:14px}.play{padding:8px 45px;font-size:19px;margin:8px auto}
+}
